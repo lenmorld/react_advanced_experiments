@@ -33,9 +33,9 @@ export function render(component, props, parent) {
             props,
         }
     */
-    const state = componentState.get(parent || { 
+    const state = componentState.get(parent) || { 
         cache: []
-     })
+     }
 
      componentState.set(parent, {
          ...state, // cache stays the same for every render
