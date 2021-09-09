@@ -1,4 +1,5 @@
 let globalId = 0
+let globalParent
 
 /* 
  Map can have anything as keys
@@ -19,7 +20,8 @@ const componentState = new Map()
     store info on each hook call
 */
 export function useState(initialState) {
-    console.log(componentState)
+    // need access to parent
+    console.log(componentState.get(globalParent))
     return [initialState, () => {}]
 }
 
@@ -42,6 +44,9 @@ export function render(component, props, parent) {
          component, // ...but update component and props
          props
      })
+
+     // update globalParent
+     globalParent = parent
 
     const output = component(props)
 
