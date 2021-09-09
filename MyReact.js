@@ -24,39 +24,48 @@ export function useState(initialState) {
     // console.log(componentState.get(globalParent))
 
     const id = globalId
-    const { cache, props, component } = componentState.get(globalParent)
-
-    // set initial value of cache for "state"
-    // if function e.g. useState(() => func())
-    // else plain value e.g. useState(0)
-    if (cache[id] == null) {
-        cache[id] = {
-            value: typeof initialState === 'function' ?
-                    initialState() :
-                    initialState
-        }
-    }
-
-    // setState updates cache
-    // if function e.g setState((prev) => prev + 1)
-    // else plain value e.g. setState(0)
-    const setState = state => {
-        if (typeof state === 'function') {
-            // state updater function
-            cache[id].value = state(cache[id].value)
-        } else {
-            // regular setState
-            cache[id].value = state
-        }
-
-        // re-render 🤯
-        render(component, props, globalParent)
-    }
-
+    // scoped inside useState
+    const parent = globalParent
     globalId++
 
-    // return [initialState, () => {}]
-    return [cache[id].value, setState]
+    // closure allows us to keep value of parent inside
+    // even when globalParent is changed, parent inside keeps its value
+    return (() => {
+        const { cache } = componentState.get(parent)
+
+        // set initial value of cache for "state"
+        // if function e.g. useState(() => func())
+        // else plain value e.g. useState(0)
+        if (cache[id] == null) {
+            cache[id] = {
+                value: typeof initialState === 'function' ?
+                        initialState() :
+                        initialState
+            }
+        }
+    
+        // setState updates cache
+        // if function e.g setState((prev) => prev + 1)
+        // else plain value e.g. setState(0)
+        const setState = state => {
+            // make sure to get updated
+            const { props, component } = componentState.get(parent)
+
+            if (typeof state === 'function') {
+                // state updater function
+                cache[id].value = state(cache[id].value)
+            } else {
+                // regular setState
+                cache[id].value = state
+            }
+    
+            // re-render 🤯
+            render(component, props, parent)
+        }
+    
+        // return [initialState, () => {}]
+        return [cache[id].value, setState]
+    })()
 }
 
 export function render(component, props, parent) {
