@@ -68,6 +68,46 @@ export function useState(initialState) {
     })()
 }
 
+export function useEffect(callback, dependencies) {
+    const id = globalId
+    const parent = globalParent
+    globalId++
+
+    (() => {
+        const { cache } = componentState.get(parent)
+
+        // store an array of deps
+        if (cache[id] == null) {
+            cache[id] = {
+                // 1st time, cache empty
+                dependencies: undefined
+            }
+        }
+    
+        // if deps null -> run every time
+        const dependenciesChanged = 
+            dependencies == null ||
+            dependencies.some((dep, i) => {
+                return (
+                    // no deps yet -> first render
+                    cache[id].dependencies == null ||
+                    // check if changed
+                    cache[id].dependencies[i] !== dep
+                )
+            })
+
+        if (dependenciesChanged) {
+            // if cleanup provided, call
+            if (cache[id].cleanup != null) cache[id].cleanup()
+
+            // assign whatever callback returned, that's the cleanup function
+            cache[id].cleanup = callback()
+
+            cache[id].dependencies = dependencies
+        }
+    })()
+}
+
 export function render(component, props, parent) {
     /*
         default to cache array
