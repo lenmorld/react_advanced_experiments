@@ -108,6 +108,45 @@ export function useEffect(callback, dependencies) {
     })()
 }
 
+export function useMemo(callback, dependencies) {
+    const id = globalId
+    const parent = globalParent
+    globalId++
+
+    (() => {
+        const { cache } = componentState.get(parent)
+
+        // store an array of deps
+        if (cache[id] == null) {
+            cache[id] = {
+                // 1st time, cache empty
+                dependencies: undefined
+            }
+        }
+    
+        // if deps null -> run every time
+        const dependenciesChanged = 
+            dependencies == null ||
+            dependencies.some((dep, i) => {
+                return (
+                    // no deps yet -> first render
+                    cache[id].dependencies == null ||
+                    // check if changed
+                    cache[id].dependencies[i] !== dep
+                )
+            })
+
+        // no cleanup for memo
+        // instead of returning a cleanup, return a value
+        if (dependenciesChanged) {
+            cache[id].value = callback()
+            cache[id].dependencies = dependencies
+        }
+
+        return cache[id].value
+    })()
+}
+
 export function render(component, props, parent) {
     /*
         default to cache array

@@ -1,4 +1,4 @@
-import { useState, useEffect } from './MyReact'
+import { useState, useEffect, useMemo } from './MyReact'
 
 export default function Component({propCount, buttonElem }) {
     // const count = 0
@@ -7,7 +7,12 @@ export default function Component({propCount, buttonElem }) {
     const [count, setCount]= useState(0)
     // const [count, setCount]= useState(() => 10)
 
-    const propCountDoubled = 0
+    // const propCountDoubled = 0
+    const propCountDoubled = useMemo(() => {
+        // should only be called when propCount change
+        console.log('In memo')
+        return propCount * 2
+    }, [propCount])
 
     useEffect(() => {
         const handler = () => setCount(currentCount => currentCount + 1)
