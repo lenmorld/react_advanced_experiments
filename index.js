@@ -13,6 +13,10 @@ function renderComponent() {
     render(Component, {
         propCount,
     }, document.querySelector('#root'))
+
+    render(Component, {
+        propCount,
+    }, document.querySelector('#root-2'))
 }
 
 renderComponent()

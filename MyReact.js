@@ -49,6 +49,10 @@ export function useState(initialState) {
             cache[id].value = state
         }
 
+        console.log({
+            component, props, globalParent
+        })
+
         // re-render 🤯
         render(component, props, globalParent)
     }
@@ -80,6 +84,7 @@ export function render(component, props, parent) {
      })
 
      // update globalParent
+     console.log("globalParent: ", globalParent)
      globalParent = parent
 
     const output = component(props)

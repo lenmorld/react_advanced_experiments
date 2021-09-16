@@ -9,6 +9,12 @@ export default function Component({propCount}) {
 
     const propCountDoubled = 0
 
+    setTimeout (() => {
+        // can be plain value or function
+        // setCount(20)
+        setCount(prev => prev + 1)
+    }, 2000)
+
     return `
         State: ${count}
         Prop: ${propCount}
